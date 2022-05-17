@@ -51,7 +51,7 @@ jobs:
         dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
     - name: Build and analyze
       env:
-        GITHUB_TOKEN: ${{ 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 }}  # Needed to get PR information, if any
+        GITHUB_TOKEN: ${{ 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 }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ b8b2d2956dbb1d74ca046d4ba5d9133eebdf299a }}
       shell: pwsh
       run: |
