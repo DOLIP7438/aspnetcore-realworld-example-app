@@ -23,3 +23,38 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.11
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v1
+      with:
+        path: ~\sonar\cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    - name: Cache SonarCloud scanner
+      id: cache-sonar-scanner
+      uses: actions/cache@v1
+      with:
+        path: .\.sonar\scanner
+        key: ${{ runner.os }}-sonar-scanner
+        restore-keys: ${{ runner.os }}-sonar-scanner
+    - name: Install SonarCloud scanner
+      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+      shell:  pwsh
+      run: |
+        New-Item -Path .\.sonar\scanner -ItemType Directory
+        dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+    - name: Build and analyze
+      env:
+        GITHUB_TOKEN: ${{ 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 }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ b8b2d2956dbb1d74ca046d4ba5d9133eebdf299a }}
+      shell: pwsh
+      run: |
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"DOLIP7438_aspnetcore-realworld-example-app" /o:"dolip7438" /d:sonar.login="${{ b8b2d2956dbb1d74ca046d4ba5d9133eebdf299a }}" /d:sonar.host.url="https://sonarcloud.io"
+        <insert_your_clean_build_command>
+        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ b8b2d2956dbb1d74ca046d4ba5d9133eebdf299a }}"
